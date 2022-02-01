@@ -214,7 +214,7 @@ func (c *Client) request(ctx context.Context, method, endpoint string, body []by
 
 	defer func() {
 		if c.debug {
-			dump(req, res)
+			dump(req, res, body)
 		}
 	}()
 
@@ -229,12 +229,13 @@ func (c *Client) request(ctx context.Context, method, endpoint string, body []by
 	return res, err
 }
 
-func dump(req *http.Request, res *http.Response) {
+func dump(req *http.Request, res *http.Response, body []byte) {
 	reqDump, _ := httputil.DumpRequest(req, true)
 	respDump, _ := httputil.DumpResponse(res, false)
 
 	prettyPrintDump("Request Details", reqDump)
 	prettyPrintDump("Response Details", respDump)
+	prettyPrintDump("body ", body)
 }
 
 func prettyPrintDump(heading string, data []byte) {
