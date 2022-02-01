@@ -135,8 +135,9 @@ func edit(cmd *cobra.Command, args []string) {
 			s := cmdutil.Info("Looking for assignee...")
 			defer s.Stop()
 
-			user, err := client.UserSearch(&jira.UserSearchOptions{
-				Query: params.assignee,
+			user, err := client.UserSearchV2(&jira.UserSearchOptions{
+				Query:   params.assignee,
+				Project: project,
 			})
 			if err != nil {
 				return err
