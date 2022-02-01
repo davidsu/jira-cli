@@ -10,12 +10,23 @@ import (
 // TransitionRequest struct holds request data for transition request.
 type TransitionRequest struct {
 	Transition *TransitionRequestData `json:"transition"`
+	Update     *TransitionUpdateData  `json:"update"`
+}
+type TransitionRequestNoUpdate struct {
+	Transition *TransitionRequestData `json:"transition"`
 }
 
 // TransitionRequestData is a transition request data.
 type TransitionRequestData struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
+}
+
+type TransitionUpdateData struct {
+	Worklog []WorklogObj `json:"worklog"`
+}
+type WorklogObj struct {
+	Add map[string]string `json:"add"`
 }
 
 type transitionResponse struct {
@@ -68,8 +79,14 @@ func (c *Client) transitions(key, ver string) ([]*Transition, error) {
 }
 
 // Transition moves issue from one state to another using POST /issue/{key}/transitions endpoint.
-func (c *Client) Transition(key string, data *TransitionRequest) (int, error) {
+func (c *Client) Transition(key string, data *TransitionRequest, name string) (int, error) {
 	body, err := json.Marshal(&data)
+	fmt.Println(name)
+	if name != "Done" && name != "Back to open" {
+		fmt.Println(name)
+		var m = TransitionRequestNoUpdate{Transition: data.Transition}
+		body, err = json.Marshal(&m)
+	}
 	if err != nil {
 		return 0, err
 	}
