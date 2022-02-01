@@ -17,7 +17,7 @@ const (
 	// IssueTypeEpic is an epic issue type.
 	IssueTypeEpic = "Epic"
 	// IssueTypeSubTask is a sub-task issue type.
-	IssueTypeSubTask = "Sub-task"
+	IssueTypeSubTask = "Sub-Task"
 	// AssigneeNone is an empty assignee.
 	AssigneeNone = "none"
 	// AssigneeDefault is a default assignee.
