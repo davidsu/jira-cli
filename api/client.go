@@ -99,21 +99,11 @@ func ProxySearch(c *jira.Client, jql string, limit uint) (*jira.SearchResult, er
 // Defaults to v3 if installation type is not defined in the config.
 func ProxyAssignIssue(c *jira.Client, key string, user *jira.User, def string) error {
 	it := viper.GetString("installation")
-	assignee := def
-
-	if user != nil {
-		switch it {
-		case jira.InstallationTypeLocal:
-			assignee = user.Name
-		default:
-			assignee = user.AccountID
-		}
-	}
 
 	if it == jira.InstallationTypeLocal {
-		return c.AssignIssueV2(key, assignee)
+		return c.AssignIssueV2(key, user.AccountID)
 	}
-	return c.AssignIssue(key, assignee)
+	return c.AssignIssue(key, user.AccountID)
 }
 
 // ProxyUserSearch uses either v2 or v3 version of the GET /user/assignable/search

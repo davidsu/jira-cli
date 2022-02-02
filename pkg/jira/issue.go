@@ -112,34 +112,18 @@ func (c *Client) assignIssue(key, assignee, ver string) error {
 		body []byte
 	)
 
-	switch ver {
-	case apiVersion2:
-		type assignRequest struct {
-			Name *string `json:"name"`
-		}
-
-		body, err = json.Marshal(assignRequest{Name: aid})
-		if err != nil {
-			return err
-		}
-		res, err = c.PutV2(context.Background(), path, body, Header{
-			"Accept":       "application/json",
-			"Content-Type": "application/json",
-		})
-	default:
-		type assignRequest struct {
-			AccountID *string `json:"accountId"`
-		}
-
-		body, err = json.Marshal(assignRequest{AccountID: aid})
-		if err != nil {
-			return err
-		}
-		res, err = c.Put(context.Background(), path, body, Header{
-			"Accept":       "application/json",
-			"Content-Type": "application/json",
-		})
+	type assignRequest struct {
+		AccountID *string `json:"accountId"`
 	}
+
+	body, err = json.Marshal(assignRequest{AccountID: aid})
+	if err != nil {
+		return err
+	}
+	res, err = c.Put(context.Background(), path, body, Header{
+		"Accept":       "application/json",
+		"Content-Type": "application/json",
+	})
 
 	if err != nil {
 		return err
