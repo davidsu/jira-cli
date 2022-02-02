@@ -74,15 +74,22 @@ func move(cmd *cobra.Command, args []string) {
 		s := cmdutil.Info(fmt.Sprintf("Transitioning issue to \"%s\"...", tr.Name))
 		defer s.Stop()
 
-		var update = jira.TransitionUpdateData{}
-		m := make(map[string]string)
-		m["timeSpent"] = "1"
-		update.Worklog = []jira.WorklogObj{{Add: m}}
-		_, err := client.Transition(mc.params.key, &jira.TransitionRequest{
+		_, err := client.TransitionNoUpdate(mc.params.key, &jira.TransitionRequestNoUpdate{
 			Transition: &jira.TransitionRequestData{ID: tr.ID.String(), Name: tr.Name},
-			Update:     &update,
-			// {Worklog: *m},
-		}, tr.Name)
+		})
+
+		if err != nil {
+			var update = jira.TransitionUpdateData{}
+			m := make(map[string]string)
+			m["timeSpent"] = "1"
+			update.Worklog = []jira.WorklogObj{{Add: m}}
+			_, err := client.Transition(mc.params.key, &jira.TransitionRequest{
+				Transition: &jira.TransitionRequestData{ID: tr.ID.String(), Name: tr.Name},
+				Update:     &update,
+				// {Worklog: *m},
+			})
+			return err
+		}
 		return err
 	}()
 	cmdutil.ExitIfError(err)

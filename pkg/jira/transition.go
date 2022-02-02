@@ -78,15 +78,8 @@ func (c *Client) transitions(key, ver string) ([]*Transition, error) {
 	return out.Transitions, err
 }
 
-// Transition moves issue from one state to another using POST /issue/{key}/transitions endpoint.
-func (c *Client) Transition(key string, data *TransitionRequest, name string) (int, error) {
+func (c *Client) TransitionNoUpdate(key string, data *TransitionRequestNoUpdate) (int, error) {
 	body, err := json.Marshal(&data)
-	fmt.Println(name)
-	if name != "Done" && name != "Back to open" {
-		fmt.Println(name)
-		var m = TransitionRequestNoUpdate{Transition: data.Transition}
-		body, err = json.Marshal(&m)
-	}
 	if err != nil {
 		return 0, err
 	}
@@ -100,6 +93,30 @@ func (c *Client) Transition(key string, data *TransitionRequest, name string) (i
 	if err != nil {
 		return 0, err
 	}
+	if res == nil {
+		return 0, ErrEmptyResponse
+	}
+	defer func() { _ = res.Body.Close() }()
+
+	if res.StatusCode != http.StatusNoContent {
+		return res.StatusCode, formatUnexpectedResponse(res)
+	}
+	return res.StatusCode, nil
+}
+
+// Transition moves issue from one state to another using POST /issue/{key}/transitions endpoint.
+func (c *Client) Transition(key string, data *TransitionRequest) (int, error) {
+	body, err := json.Marshal(&data)
+	if err != nil {
+		return 0, err
+	}
+
+	path := fmt.Sprintf("/issue/%s/transitions", key)
+
+	res, err := c.PostV2(context.Background(), path, body, Header{
+		"Accept":       "application/json",
+		"Content-Type": "application/json",
+	})
 	if res == nil {
 		return 0, ErrEmptyResponse
 	}
